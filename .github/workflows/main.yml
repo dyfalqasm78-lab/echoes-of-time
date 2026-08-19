@@ -1,0 +1,45 @@
+name: Build Android Bundle (AAB)
+on:
+  push:
+    branches: [ "main", "رئيسي" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        
+    - name: Install Capacitor & Build App
+      run: |
+        npm init -y
+        npm install @capacitor/core @capacitor/cli
+        npx cap init "Echoes of Time" "com.echoesoftime.game" --web-dir=.
+        npm install @capacitor/android
+        npx cap add android
+        
+    - name: Rename HTML for Capacitor
+      run: |
+        mv game.html index.html || true
+        npx cap update android
+        
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'zulu'
+        
+    - name: Build App Bundle (AAB)
+      run: |
+        cd android
+        ./gradlew bundleRelease
+        
+    - name: Upload AAB Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: echoes-of-time-aab
+        path: android/app/build/outputs/bundle/release/app-release-密.aab

@@ -14,17 +14,18 @@ jobs:
       with:
         node-version: 20
         
+    - name: Prepare Web Directory
+      run: |
+        mkdir www
+        mv game.html www/index.html || cp index.html www/index.html || true
+        
     - name: Install Capacitor & Build App
       run: |
         npm init -y
         npm install @capacitor/core @capacitor/cli
-        npx cap init "Echoes of Time" "com.echoesoftime.game" --web-dir=.
+        npx cap init "Echoes of Time" "com.echoesoftime.game" --web-dir=www
         npm install @capacitor/android
         npx cap add android
-        
-    - name: Rename HTML for Capacitor
-      run: |
-        mv game.html index.html || true
         npx cap update android
         
     - name: Set up JDK 17
